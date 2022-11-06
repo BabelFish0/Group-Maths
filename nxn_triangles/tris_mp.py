@@ -1,36 +1,39 @@
-from numba import njit
- 
-@njit
-def project4(n):
-   lst = []
-   for item in range(1, n + 1):
-       coordinates = [(x, y) for x in range(item) for y in range(item)]
-       coordinates.remove((0,0))
-       combo = []
-       for i in range(len(coordinates) - 1):
-           for j in range(i + 1, len(coordinates)):
-               if item - 1 in coordinates[i] or item - 1 in coordinates[j]:
-                   combo.append([coordinates[i], coordinates[j]])
- 
-       tri = []
-       for i in combo:
-           if i[0][0] * i[1][1] - i[1][0] * i[0][1] != 0:
-               tri.append(i)
-              
-       distance = []
-       for i in tri:
-           temp = [i[0][0] ** 2 + i[0][-1] ** 2, (i[0][0] - i[1][0]) ** 2 + (i[0][-1] - i[1][-1]) ** 2, i[1][0] ** 2 + i[1][-1] ** 2]
-           temp.sort()
-           distance.append(temp)
-          
-       add_lst = []
-       for i in distance:
-           if i not in add_lst:
-               add_lst.append(i)
-       for i in lst:
-           if i in add_lst:
-               add_lst.remove(i)
-      
-       for i in add_lst:
-           lst.append(i)
-       print(len(lst))
+import time
+import matplotlib.pyplot as plt
+import numpy
+import math
+from numba import njit, prange
+
+triangleSides = []
+#times = []
+
+@njit(parallel = True)
+def findTris(n):
+    triangleSides = []
+    #t1 = time.perf_counter()
+    for x1 in range(n+1):
+        for y1 in range(n+1):
+            for x2 in range(n+1):
+                for y2 in range(n+1):
+                    if (not (x1 == 0 and x2 == 0)) and (not ((x1 == 0 and y1 == 0) or (x2 == 0 and y2 == 0))):
+                        if not(x1 == 0 or x2 == 0):
+                            if y1/x1 != y2/x2:
+                                if sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]) not in triangleSides:
+                                    triangleSides.append(sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]))
+                        else:
+                            if sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]) not in triangleSides:
+                                triangleSides.append(sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]))
+    #t2 = time.perf_counter()
+    #print("Unique triangles: " + str(len(triangleSides)) + " in " + str(t2-t1) + "s")
+    #times.append(t2-t1)
+    return triangleSides
+
+timeCount = 0
+for n in range(25):
+    #print(n)
+    t1 = time.perf_counter()
+    print(len(findTris(n)), end='   ')
+    t2 = time.perf_counter()
+    print(str(t2-t1) + 's', end='   ')
+    timeCount += t2-t1
+    print(str(timeCount) + 's')

@@ -4,23 +4,20 @@ import numpy
 import math
 from numba import njit, prange
 
-triangleSides = [[1, 1, 1]]
+triangleSides = []
 #times = []
-
-def remDuplicates(list):
-    for tri in list:
-        break
-
 #@njit(parallel = False)
+
 def findTris(x1Start, x1End, n, triangleSides):
     '''
     run by each process.
-    finds all unique trianlges in grid n x  n where:
+    finds all unique trianlges in grid n x n where:
     point 1 = (0, 0)
-    point 2 = all in range (x1Start - x1End, n)
+    point 2 = all in range (x1Start -> x1End, n)
     point 3 = every point in n x n grid
     triangleSides is list of currently known sets of side lengths for unique trianlges w/o repeats
     '''
+    newTris = []
     y1 = n
     for x1 in range(x1Start, x1End+1):
         for x2 in range(n+1):
@@ -29,21 +26,8 @@ def findTris(x1Start, x1End, n, triangleSides):
                     if not(x1 == 0 or x2 == 0):
                         if y1/x1 != y2/x2:
                             if sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]) not in triangleSides:
-                                triangleSides.append(sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]))
+                                newTris.append(sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]))
                     else:
                         if sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]) not in triangleSides:
-                            triangleSides.append(sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]))
-    #t2 = time.perf_counter()
-    #print("Unique triangles: " + str(len(triangleSides)) + " in " + str(t2-t1) + "s")
-    #times.append(t2-t1)
-    return triangleSides
-
-timeCount = 0
-for n in range(25):
-    print(n, end='   ')
-    t1 = time.perf_counter()
-    print(len(findTris(n, triangleSides)), end='   ')
-    t2 = time.perf_counter()
-    print(str(t2-t1) + 's', end='   ')
-    timeCount += t2-t1
-    print(str(timeCount) + 's')
+                            newTris.append(sorted([(x1-x2)**2 + (y1-y2)**2, x1**2 + y1**2, x2**2 + y2**2]))
+    return numpy.unique(newTris, axis=0)

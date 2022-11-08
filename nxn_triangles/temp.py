@@ -6,17 +6,16 @@ def encodeArgs(n, triangleSides, processCount):
     else:
         if n % processCount == 0:
             args = []
-            for chunk in range(n/processCount):
+            for chunk in range(processCount):
                 x1Start = n/processCount * chunk
                 x1End = x1Start + n/processCount * chunk - 1
                 args.append([x1Start, x1End, n, triangleSides])
             return args
         remainder = n % (processCount-1)
         args = []
-        processCount -= 1
-        for chunk in range(n//(processCount)):
-            x1Start = n/processCount * chunk
-            x1End = x1Start + n/processCount * chunk - 1
+        for chunk in range(processCount-1):
+            x1Start = n//processCount * chunk
+            x1End = x1Start + n//processCount * chunk - 1
             args.append([x1Start, x1End, n, triangleSides])
         args.append([n-remainder, n-1, n, triangleSides])
         return args
